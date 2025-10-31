@@ -1,5 +1,6 @@
 package com.doctor_service.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 import java.time.LocalTime;
@@ -13,6 +14,18 @@ public class TimeSlots {
     private long id;
     @Column(name = "time")
     private LocalTime time ;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "appointment_schedule_id")
+    @JsonBackReference
+    private DoctorAppointmentSchedule doctorAppointmentSchedule;
+
+    public DoctorAppointmentSchedule getDoctorAppointmentSchedule() {
+        return doctorAppointmentSchedule;
+    }
+
+    public void setDoctorAppointmentSchedule(DoctorAppointmentSchedule doctorAppointmentSchedule) {
+        this.doctorAppointmentSchedule = doctorAppointmentSchedule;
+    }
 
     public long getId() {
         return id;

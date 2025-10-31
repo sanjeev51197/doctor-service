@@ -1,9 +1,12 @@
 package com.doctor_service.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 
 @Entity
 @Table(name = "doctor_appointment_schedule")
@@ -19,7 +22,20 @@ public class DoctorAppointmentSchedule {
 
              @ManyToOne(cascade = CascadeType.ALL)
              @JoinColumn(name="doctor_id")
+             @JsonBackReference   //child side of doctor
              private Doctor doctor;
+
+    @OneToMany(mappedBy = "doctorAppointmentSchedule", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference
+    private List<TimeSlots> timeSlots;
+
+    public List<TimeSlots> getTimeSlots() {
+        return timeSlots;
+    }
+
+    public void setTimeSlots(List<TimeSlots> timeSlots) {
+        this.timeSlots = timeSlots;
+    }
 
     public long getId() {
         return id;
