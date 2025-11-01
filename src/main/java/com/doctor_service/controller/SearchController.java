@@ -45,23 +45,34 @@ public class SearchController {
             SearchResultDto dto = new SearchResultDto();
 
             List<LocalDate> validDates = new ArrayList<>();
-            List<LocalTime> allTimeSlot = new ArrayList<>();
+            List<LocalTime> allTimeSlots = new ArrayList<>();
 
             List<DoctorAppointmentSchedule> schedules = doctor.getAppointmentSchedules();
 
-            for (DoctorAppointmentSchedule s : schedules) {
-                LocalDate scheduleDate = s.getDate();
+            for (DoctorAppointmentSchedule schedule : schedules) {
+                LocalDate scheduleDate = schedule.getDate();
+                LocalTime now=LocalTime.now();     //current time
+                List<TimeSlots> timeSlots=timeSlotsRepository.getAllTimeSlots(schedule.getId());
 
-                //only today or future dates
-                if (!scheduleDate.isBefore(today)) {
-                    validDates.add(scheduleDate);
+                   for (TimeSlots ts : timeSlots)
+                   {
+                       LocalTime slotTime=ts.getTime();
 
-                    //all time slots for that schedule
-                    List<TimeSlots> timeSlots = timeSlotsRepository.getAllTimeSlots(s.getId());
-                    for (TimeSlots ts : timeSlots) {
-                        allTimeSlot.add(ts.getTime());
-                    }
-                }
+                       //if schedule is today -> only future time
+                       if (scheduleDate.isEqual(today))
+                       {
+                           if (slotTime.isAfter(now))
+                           {
+                               allTimeSlots.add(slotTime);
+                           }
+                       }
+                       //if schedule is in the future ->add all times
+                       else if (scheduleDate.isAfter(today)) {
+
+                           allTimeSlots.add(slotTime);
+                       }
+
+                   }
             }
 
             //doctor info
@@ -72,7 +83,7 @@ public class SearchController {
             dto.setArea(doctor.getArea().getName());
             dto.setCity(doctor.getCity().getName());
             dto.setDates(validDates);
-            dto.setTimeSlots(allTimeSlot);
+            dto.setTimeSlots(allTimeSlots);
 
             result.add(dto);
         }
